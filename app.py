@@ -36,10 +36,10 @@ app = Flask(__name__)
 def json_example():
     # return 'JSON Object Example'
     url = 'https://baxterassistant2.pythonanywhere.com/api/message/'
-    var_get = requests.get(url)
+    var_get = requests.get(url)  # Me devuelve el Response del request (objeto)
 
     if 'json' in var_get.headers.get('Content-Type'):
-        js_string = var_get.json()
+        js_string = var_get.json()  # Convierto en JSON mi response. Viene en forma de list
 
     else:
         print('Response content is not in JSON format.')
@@ -47,9 +47,21 @@ def json_example():
 
     id_message = js_string[-1]['id']
     last_json = js_string[-1]['message']
+    replace_simple_quotation = str(last_json).replace("'", '"')
+    last_json = json.loads(replace_simple_quotation)  # Convierto a JSON mi str
 
+    print('+++++++')
     print(last_json)
+    print(type(last_json))
+
+    print(last_json['accion'])
+    print(last_json.get('accion'))
     print(id_message)
+
+    if last_json.get('accion') == 'mover ':
+        print("escribí en la terminal")
+        escribirterminal("python pose.py")
+
     return str(js_string)
 
 
