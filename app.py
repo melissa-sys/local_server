@@ -1,5 +1,8 @@
+import os
 import json
 import pyautogui
+import time
+#import apscheduler
 
 from flask import Flask
 
@@ -35,7 +38,9 @@ app = Flask(__name__)
 @app.route('/', methods=['GET'])
 def json_example():
     # return 'JSON Object Example'
-    url = 'https://baxterassistant2.pythonanywhere.com/api/message/'
+    url = 'http://127.0.0.1:8000/api/message/'  # LOCAL
+    # url = 'https://baxterassistant2.pythonanywhere.com/api/message/' CERT
+    # url = 'https://baxterassistant.pythonanywhere.com/api/message/' PROD
     var_get = requests.get(url)  # Me devuelve el Response del request (objeto)
 
     if 'json' in var_get.headers.get('Content-Type'):
@@ -59,8 +64,52 @@ def json_example():
     print(id_message)
 
     if last_json.get('accion') == 'mover ':
-        print("escribí en la terminal")
         escribirterminal("python pose.py")
+        print("escribí en la terminal: python pose.py ")
+
+    if last_json.get('accion') == 'Tomar ':
+        escribirterminal("python tomarfoto.py")
+        time.sleep(1)
+        escribirterminal("python mov_arms.py")
+        print("escribí en la terminal: python tomarfoto.py && python mov_arms.py ")
+
+    if last_json.get('accion') == 'Posicionar ':
+        escribirterminal("python TCI.py")
+        time.sleep(3)
+        print('escribí en la terminal: python TCI.py ')
+        # datos = open("pos_actual.txt", "r")
+        # valores = eval(datos.read())
+        # return(valores['estado'])
+
+    if last_json.get('accion') == 'iniciar':  # Home
+        print('inicié programa guardado')
+        # abrirterminal()
+        # escribirterminal("cd ros_ws")
+        # escribirterminal(". baxter.sh")
+        # escribirterminal("rosrun baxter_tools enable_robot.py -e")
+        # time.sleep(10)
+        # escribirterminal("python obtener_pos.py")
+
+    if last_json.get('accion') == 'set':  # Set
+        print('seteé posición')
+        # escribirterminal("rosrun baxter_tools tuck_arms.py -u")
+        # borrar_registros()
+        # time.sleep(5)
+        # escribirterminal("python obtener_pos.py")
+
+    if last_json.get('accion') == 'save':  # Guardar
+        print('guardé la información')
+        # os.rename("movimientosleft.txt", "Programas/" +
+        #           str(datos['nombre_programa'])+"l.txt")
+        # os.rename("movimientosright.txt", "Programas/" +
+        #           str(datos['nombre_programa'])+"r.txt")
+
+    if last_json.get('accion') == 'apagar':  # Apagar
+        print('me apagué')
+        # escribirterminal("rosrun baxter_tools tuck_arms.py -t")
+        # escribirterminal("exit")
+        # escribirterminal("exit")
+        # borrar_registros()
 
     return str(js_string)
 
