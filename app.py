@@ -64,6 +64,11 @@ def json_example():
     # print(last_json.get('accion'))
     # print(id_message)
     if (last_json['confirmacion'] == 'True'):
+        with open('datos.txt', 'w'):
+            pass
+        text_file = open("datos.txt", "w")
+        text_file.write(str(last_json))
+        text_file.close()
         if(last_json['accion'] == 'tomar'):
             # escribirterminal("python tomarfoto.py")
             print("escribí 'python tomarfoto.py' en la terminal ")
