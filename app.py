@@ -38,6 +38,8 @@ def borrar_registros():
     """ Borra en el txt los valores de las articulaciones """
     wave1 = {str("right")+'_s0': 0, str("right")+'_s1': 0, str("right")+'_e0': 0, str("right")+'_e1': 0,
              str("right")+'_w0': 0, str("right")+'_w1': 0, str("right")+'_w2': 0}
+    wave2 = {str("left")+'_s0': 0, str("left")+'_s1': 0, str("left")+'_e0': 0, str("left")+'_e1': 0,
+             str("left")+'_w0': 0, str("left")+'_w1': 0, str("left")+'_w2': 0}
     with open("movimientosright.txt", 'w'):
         pass
     text_file = open("movimientosright.txt", "w")
@@ -46,7 +48,7 @@ def borrar_registros():
     with open("movimientosleft.txt", 'w'):
         pass
     text_file = open("movimientosleft.txt", "w")
-    text_file.write(str(wave1))
+    text_file.write(str(wave2))
     text_file.close()
 
 
