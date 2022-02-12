@@ -1,1 +1,1 @@
-{'contador': 1, 'direccion': 'derecha', 'grados': 15, 'accion': 'mover', 'partes': 'cabeza', 'confirmacion': 'True'}
+{'contador': 1, 'direccion': 'derecha', 'grados': 34, 'accion': 'mover', 'partes': 'cabeza', 'confirmacion': 'True'}

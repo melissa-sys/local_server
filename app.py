@@ -4,9 +4,11 @@ import pyautogui
 import time
 from time import sleep
 from flask_apscheduler import APScheduler
-# import apscheduler
 
 from flask import Flask
+from flask import Response
+
+import cv2
 
 
 import requests
@@ -58,18 +60,60 @@ def borrar_registros():
 
 app = Flask(__name__)
 
+# Ruta consumo video
+video = cv2.VideoCapture(0)
+face_cascade = cv2.CascadeClassifier()
 
-# while True:
-#     sleep(15 - time() % 15)
-#     print('it worked')
+# Load the pretrained model
+face_cascade.load(cv2.samples.findFile(
+    "static/haarcascade_frontalface_alt.xml"))
+
+
+def gen(video):
+    while True:
+        success, image = video.read()
+        frame_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        frame_gray = cv2.equalizeHist(frame_gray)
+
+        faces = face_cascade.detectMultiScale(frame_gray)
+
+        for (x, y, w, h) in faces:
+            center = (x + w//2, y + h//2)
+            cv2.putText(image, "X: " + str(center[0]) + " Y: " + str(
+                center[1]), (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 3)
+            image = cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
+
+            faceROI = frame_gray[y:y+h, x:x+w]
+        ret, jpeg = cv2.imencode('.jpg', image)
+
+        frame = jpeg.tobytes()
+
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+
+
+@app.route('/video')
+def video_feed():
+    # Set to global because we refer the video variable on global scope,
+    # Or in other words outside the function
+    global video
+
+# Return the result on the web
+    return Response(gen(video),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+# Ruta consumo API chatbot
+
 
 @app.route('/', methods=['GET'])
 def json_example():
     global prueba
     # return 'JSON Object Example'
-    url = 'http://127.0.0.1:8000/api/message/'  # LOCAL
-    # url = 'https://baxterassistant2.pythonanywhere.com/api/message/' CERT
-    # url = 'https://baxterassistant.pythonanywhere.com/api/message/' PROD
+    # url = 'http://127.0.0.1:8000/api/message/'  # LOCAL
+    url = 'https://baxterassistant2.pythonanywhere.com/api/message/'
+    # url = 'https://baxterassistant.pythonanywhere.com/api/message/' #PROD
+    # url = 'http://34.229.118.13:8080/api/message/'
+
     # Me devuelve el Response del request (objeto)
     var_get = requests.get(url)
 
