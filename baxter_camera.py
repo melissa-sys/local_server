@@ -1,3 +1,4 @@
+#coding=utf-8
 # General module imports
 import rospy
 import cv2 as cv
@@ -34,14 +35,15 @@ def close_camera(camera):
 def limb_cam_show_image_callback(ros_img):
     cv_image = cv_bridge.CvBridge().imgmsg_to_cv2(
         ros_img, desired_encoding="passthrough")
+    print(type(cv_image))
     cv.imshow('Image', cv_image)
     # como tengo muchas imágenes, que son el video, lo ejecuto cada 1ms
     cv.waitKey(1)
 
 
 if __name__ == '__main__':
-    rospy.init_node('Get_limb_camera_image', anonymous=True)
-    rospy.Subscriber('/cameras/left_hand_camera/image',
+    rospy.init_node('Camera_Subscriber', anonymous=True)
+    rospy.Subscriber('/cameras/head_camera/image',
                      Image, limb_cam_show_image_callback)  # nombre_topic(probamos brazo izq), mensaje_importadoa_arriba, funcion_callback: retorna las imágenes a cierta frecuencia. Es como un servidor.
     rospy.spin()  # delay
     cv.destroyAllWindows()
