@@ -4,10 +4,14 @@ import json
 import pyautogui
 import time
 from time import sleep
-#from flask_apscheduler import APScheduler
+from flask_apscheduler import APScheduler
 
+import flask
 from flask import Flask
 from flask import Response
+from flask import redirect
+from flask import url_for
+from flask import render_template
 
 # import cv2
 
@@ -15,7 +19,7 @@ from flask import Response
 import requests
 
 
-# Inicialziación de variables
+# Inicialización de variables
 pyautogui.FAILSAFE = True
 pyautogui.PAUSE = 1
 
@@ -111,9 +115,9 @@ def json_example():
     global prueba
     # return 'JSON Object Example'
     # url = 'http://127.0.0.1:8000/api/message/'  # LOCAL
-    url = 'https://baxterassistant2.pythonanywhere.com/api/message/'
+    # url = 'https://baxterassistant2.pythonanywhere.com/api/message/'
     # url = 'https://baxterassistant.pythonanywhere.com/api/message/' #PROD
-    # url = 'http://34.229.118.13:8080/api/message/'
+    url = 'http://3.93.220.15:8080/api/message/'
 
     # Me devuelve el Response del request (objeto)
     var_get = requests.get(url)
@@ -223,26 +227,36 @@ def json_example():
         prueba = prueba
         js_string = {'no new data'}
         print(js_string)
-        abrirterminal()
-        escribirterminal("cd ros_ws")
-        escribirterminal(". baxter.sh")
-        escribirterminal("rosrun baxter_tools enable_robot.py -e")
-        time.sleep(10)
-        escribirterminal("cd local_server")
-        escribirterminal("python baxter_camera.py")
-        pass
+        with app.test_request_context():
+            print(redirect(url_for('video_example')))
+            return redirect(url_for('video_example'))
 
     return str(js_string)
 
+@app.route("/video", methods=['GET','POST'])
+def video_example():
+    print('iniciando video')
+    abrirterminal()
+    escribirterminal("cd ros_ws")
+    escribirterminal(". baxter.sh")
+    escribirterminal("rosrun baxter_tools enable_robot.py -e")
+    time.sleep(10)
+    escribirterminal("cd local_server")
+    escribirterminal("python baxter_camera.py")
+    return True
 
-# scheduler = APScheduler()
-# scheduler.add_job(id='Scheduled task', func=json_example,
-#                   trigger='interval', seconds=5)
+@app.route("/video_kinesis", methods=['GET', 'POST'])
+def video():
+   return render_template('video.html')
 
-# scheduler.start()
+scheduler = APScheduler()
+scheduler.add_job(id='Scheduled task', func=json_example,
+                  trigger='interval', seconds=5)
+
+scheduler.start()
 
 if __name__ == '__main__':
     # run app in debug mode on port 5000
     while True:
-        app.run(debug=True, use_reloader=False, port=5000)
+        app.run(debug=True, use_reloader=False, port=5001)
         sleep(1)
