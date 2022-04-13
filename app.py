@@ -248,7 +248,7 @@ def video_example():
 @app.route("/video_kinesis", methods=['GET', 'POST'])
 def video():
    return render_template('video.html')
-
+   
 scheduler = APScheduler()
 scheduler.add_job(id='Scheduled task', func=json_example,
                   trigger='interval', seconds=5)
