@@ -5,6 +5,7 @@ import pyautogui
 import time
 from time import sleep
 from flask_apscheduler import APScheduler
+import apscheduler.schedulers.background
 
 import flask
 from flask import Flask
@@ -24,7 +25,7 @@ pyautogui.FAILSAFE = True
 pyautogui.PAUSE = 1
 
 global prueba
-prueba = 0
+prueba = 63
 
 # Funciones del RPA
 
@@ -137,6 +138,7 @@ def json_example():
 
     a = id_message
     if (a != prueba):
+        prueba = a
         print("not same number")
         last_json = js_string[-1]['message']
         replace_simple_quotation = str(last_json).replace("'", '"')
@@ -159,30 +161,30 @@ def json_example():
             text_file.write(str(last_json))
             text_file.close()
             if(last_json['accion'] == 'tomar'):
-                # escribirterminal("python tomarfoto.py")
+                escribirterminal("python tomarfoto.py")
                 print("escribí 'python tomarfoto.py' en la terminal ")
-                # time.sleep(1)
-                # escribirterminal("python mov_arms.py")
+                time.sleep(1)
+                escribirterminal("python mov_arms.py")
                 print("escribí 'python mov_arms.py' en la terminal ")
             if(last_json['accion'] == "mover"):
-                # escribirterminal("python pose.py")
+                escribirterminal("python pose.py")
                 print("escribí 'python pose.py' en la terminal ")
             if(last_json['accion'] == "guardar"):
                 print("guardé los valores en txts")
-                # os.rename("movimientosleft.txt", "Programas/" +
-                #             str(datos['nombre_programa'])+"l.txt")
-                # os.rename("movimientosright.txt", "Programas/" +
-                #             str(datos['nombre_programa'])+"r.txt")
+                os.rename("movimientosleft.txt", "Programas/" +
+                            str(datos['nombre_programa'])+"l.txt")
+                os.rename("movimientosright.txt", "Programas/" +
+                            str(datos['nombre_programa'])+"r.txt")
             if(last_json['accion'] == "ejecutar"):  # pendiente
-                # escribirterminal("python programas_guardadas.py")
+                escribirterminal("python programas_guardadas.py")
                 print("escribí 'python programas_guardadas.py' en la terminal ")
             if(last_json['accion'] == "posicionar"):
-                # escribirterminal("python TCI.py")
+                escribirterminal("python TCI.py")
                 print("escribí 'python TCI.py' en la terminal ")
-                # time.sleep(3)
-                # datos = open("pos_actual.txt", "r")
-                # valores = eval(datos.read())
-                # return(valores['estado'])
+                time.sleep(3)
+                datos = open("pos_actual.txt", "r")
+                valores = eval(datos.read())
+                return(valores['estado'])
             # time.sleep(10)
             # escribirterminal("python obtener_pos.py")
             # datos = open("pos_actual.txt", "r")
@@ -190,37 +192,37 @@ def json_example():
             # return(valores)
 
             if (last_json["accion"] == "iniciar"):
-                # abrirterminal()
+                abrirterminal()
                 print('Se ejecuta todo lo respectivo a INICIAR')
-                # escribirterminal("cd ros_ws")
-                # escribirterminal(". baxter.sh")
-                # escribirterminal("rosrun baxter_tools enable_robot.py -e")
-                # time.sleep(10)
-                # escribirterminal("python obtener_pos.py")
+                escribirterminal("cd ros_ws")
+                escribirterminal(". baxter.sh")
+                escribirterminal("rosrun baxter_tools enable_robot.py -e")
+                time.sleep(10)
+                escribirterminal("python obtener_pos.py")
             if (last_json["accion"] == "set"):
                 print('Se ejecuta todo lo respectivo a SET')
-                # escribirterminal("rosrun baxter_tools tuck_arms.py -u")
-                # borrar_registros()
-                # time.sleep(5)
-                # escribirterminal("python obtener_pos.py")
+                escribirterminal("rosrun baxter_tools tuck_arms.py -u")
+                borrar_registros()
+                time.sleep(5)
+                escribirterminal("python obtener_pos.py")
             if(last_json["accion"] == "apagar"):
                 print('Se ejecuta todo lo respectivo a APAGAR')
-                # escribirterminal("rosrun baxter_tools tuck_arms.py -t")
-                # escribirterminal("exit")
-                # escribirterminal("exit")
-                # borrar_registros()
-            # print(payload["accion"])
-            # datos = open("pos_actual.txt", "r")
-            # #valores=eval(datos.read())
-            # return (datos.read())
+                escribirterminal("rosrun baxter_tools tuck_arms.py -t")
+                escribirterminal("exit")
+                escribirterminal("exit")
+                borrar_registros()
+            
+            datos = open("pos_actual.txt", "r")
+            #valores=eval(datos.read())
+            return (datos.read())
 
         else:
-            # escribirterminal("python obtener_pos.py")
+            escribirterminal("python obtener_pos.py")
             print("escribí 'python obtener_pos.py' en la terminal ")
-            # datos = open("pos_actual.txt", "r")
-            # return (datos.read()) #Retornaba json con los valores de cada articulación del brazo
+            datos = open("pos_actual.txt", "r")
+            return (datos.read()) #Retornaba json con los valores de cada articulación del brazo
 
-        prueba = a
+        
 
     else:
         print("same number")
@@ -251,7 +253,7 @@ def video():
    
 scheduler = APScheduler()
 scheduler.add_job(id='Scheduled task', func=json_example,
-                  trigger='interval', seconds=5)
+                  trigger='interval', seconds=5, max_instances= 4)
 
 scheduler.start()
 

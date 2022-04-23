@@ -1,1 +1,1 @@
-{u'grados': 34, u'accion': u'mover', u'direccion': u'derecha', u'contador': 1, u'partes': u'cabeza', u'confirmacion': u'True'}
+{'accion': 'apagar', 'confirmacion': 'True'}
