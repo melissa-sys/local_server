@@ -151,6 +151,9 @@ def json_example():
                 borrar_registros()
             time.sleep(10)
             datos = open("pos_actual.txt", "r")
+            time.sleep(5)
+            escribirterminal('scp -i keypair.pem local_server/datos.txt ubuntu@ec2-3-93-220-15.compute-1.amazonaws.com:~/baxter-assistant1.0/ba_v1/chat/static')
+            time.sleep(10)
             valores = eval(datos.read())
             return (datos.read())
 
