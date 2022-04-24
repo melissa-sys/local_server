@@ -29,7 +29,6 @@ prueba = 63
 
 # Funciones del RPA
 
-
 def abrirterminal():
     """
     Función para abrir la terminal de linux y se ejecute
@@ -37,14 +36,12 @@ def abrirterminal():
     pyautogui.click(x=100, y=0, clicks=1, button='left')
     pyautogui.hotkey('Ctrl', 'Alt', 't')
 
-
 def escribirterminal(comando):
     """
     Función para abrir la terminal de linux y se ejecute
     """
     pyautogui.typewrite(comando, interval=0)
     pyautogui.hotkey('ENTER')
-
 
 def borrar_registros():
     """ Borra en el txt los valores de las articulaciones """
@@ -63,61 +60,11 @@ def borrar_registros():
     text_file.write(str(wave2))
     text_file.close()
 
-
 app = Flask(__name__)
-
-# # Ruta consumo video
-# video = cv2.VideoCapture(0)
-# face_cascade = cv2.CascadeClassifier()
-
-# # Load the pretrained model
-# face_cascade.load(
-#     "static/haarcascade_frontalface_alt.xml")
-
-
-# def gen(video):
-#     while True:
-#         success, image = video.read()
-#         frame_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-#         frame_gray = cv2.equalizeHist(frame_gray)
-
-#         faces = face_cascade.detectMultiScale(frame_gray)
-
-#         for (x, y, w, h) in faces:
-#             center = (x + w//2, y + h//2)
-#             cv2.putText(image, "X: " + str(center[0]) + " Y: " + str(
-#                 center[1]), (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 3)
-#             image = cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
-
-#             faceROI = frame_gray[y:y+h, x:x+w]
-#         ret, jpeg = cv2.imencode('.jpg', image)
-
-#         frame = jpeg.tobytes()
-
-#         yield (b'--frame\r\n'
-#                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
-
-
-# @app.route('/video')
-# def video_feed():
-#     # Set to global because we refer the video variable on global scope,
-#     # Or in other words outside the function
-#     global video
-
-# # Return the result on the web
-#     return Response(gen(video),
-#                     mimetype='multipart/x-mixed-replace; boundary=frame')
-
-# Ruta consumo API chatbot
-
 
 @app.route('/', methods=['GET'])
 def json_example():
     global prueba
-    # return 'JSON Object Example'
-    # url = 'http://127.0.0.1:8000/api/message/'  # LOCAL
-    # url = 'https://baxterassistant2.pythonanywhere.com/api/message/'
-    # url = 'https://baxterassistant.pythonanywhere.com/api/message/' #PROD
     url = 'http://3.93.220.15:8080/api/message/'
 
     # Me devuelve el Response del request (objeto)
@@ -181,16 +128,7 @@ def json_example():
             if(last_json['accion'] == "posicionar"):
                 escribirterminal("python TCI.py")
                 print("escribí 'python TCI.py' en la terminal ")
-                time.sleep(3)
-                datos = open("pos_actual.txt", "r")
-                valores = eval(datos.read())
-                return(valores['estado'])
-            # time.sleep(10)
-            # escribirterminal("python obtener_pos.py")
-            # datos = open("pos_actual.txt", "r")
-            # valores = eval(datos.read())
-            # return(valores)
-
+                time.sleep(3) 
             if (last_json["accion"] == "iniciar"):
                 abrirterminal()
                 print('Se ejecuta todo lo respectivo a INICIAR')
@@ -211,18 +149,14 @@ def json_example():
                 escribirterminal("exit")
                 escribirterminal("exit")
                 borrar_registros()
-            
+            time.sleep(10)
             datos = open("pos_actual.txt", "r")
-            #valores=eval(datos.read())
+            valores = eval(datos.read())
             return (datos.read())
 
         else:
-            escribirterminal("python obtener_pos.py")
-            print("escribí 'python obtener_pos.py' en la terminal ")
-            datos = open("pos_actual.txt", "r")
-            return (datos.read()) #Retornaba json con los valores de cada articulación del brazo
-
-        
+            print('Existe un error!')
+            return (datos.read()) #Retornaba json con los valores de cada articulación del brazo        
 
     else:
         print("same number")
@@ -234,18 +168,6 @@ def json_example():
             return redirect(url_for('video_example'))
 
     return str(js_string)
-
-@app.route("/video", methods=['GET','POST'])
-def video_example():
-    print('iniciando video')
-    abrirterminal()
-    escribirterminal("cd ros_ws")
-    escribirterminal(". baxter.sh")
-    escribirterminal("rosrun baxter_tools enable_robot.py -e")
-    time.sleep(10)
-    escribirterminal("cd local_server")
-    escribirterminal("python baxter_camera.py")
-    return True
 
 @app.route("/video_kinesis", methods=['GET', 'POST'])
 def video():
