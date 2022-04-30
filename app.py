@@ -20,12 +20,14 @@ from flask import render_template
 import requests
 
 
+global firstRequest
+firstRequest = False
 # Inicialización de variables
 pyautogui.FAILSAFE = True
 pyautogui.PAUSE = 1
 
 global prueba
-prueba = 63
+#prueba = 87 #TODO quitar esto por una variable que se actualice en la primera peticion
 
 # Funciones del RPA
 
@@ -65,6 +67,7 @@ app = Flask(__name__)
 @app.route('/', methods=['GET'])
 def json_example():
     global prueba
+    global firstRequest
     url = 'http://3.93.220.15:8080/api/message/'
 
     # Me devuelve el Response del request (objeto)
@@ -78,12 +81,19 @@ def json_example():
         js_string = 'spam'
 
     # print(js_string)
-    print('prueba=' + str(prueba))
-
+    
     id_message = js_string[-1]['id']
     print(id_message)
 
-    a = id_message
+    if ( firstRequest == False ):
+        firstRequest = True
+        prueba = id_message
+        print(prueba)
+        a = id_message
+    else:
+        a = id_message
+
+
     if (a != prueba):
         prueba = a
         print("not same number")
@@ -152,9 +162,9 @@ def json_example():
             time.sleep(10)
             datos = open("pos_actual.txt", "r")
             time.sleep(5)
-            escribirterminal('scp -i keypair.pem local_server/datos.txt ubuntu@ec2-3-93-220-15.compute-1.amazonaws.com:~/baxter-assistant1.0/ba_v1/chat/static')
-            time.sleep(10)
-            valores = eval(datos.read())
+            #escribirterminal('scp -i keypair.pem local_server/datos.txt ubuntu@ec2-3-93-220-15.compute-1.amazonaws.com:~/baxter-assistant1.0/ba_v1/chat/static')
+            #time.sleep(10)
+            #valores = eval(datos.read())
             return (datos.read())
 
         else:
@@ -172,13 +182,25 @@ def json_example():
 
     return str(js_string)
 
+@app.route("/video", methods=['GET','POST'])
+def video_example():
+    print('iniciando video')
+    abrirterminal()
+    escribirterminal("cd ros_ws")
+    escribirterminal(". baxter.sh")
+    escribirterminal("rosrun baxter_tools enable_robot.py -e")
+    time.sleep(10)
+    escribirterminal("cd local_server")
+    escribirterminal("python baxter_camera.py")
+    return True
+
 @app.route("/video_kinesis", methods=['GET', 'POST'])
 def video():
    return render_template('video.html')
    
 scheduler = APScheduler()
 scheduler.add_job(id='Scheduled task', func=json_example,
-                  trigger='interval', seconds=5, max_instances= 4)
+                  trigger='interval', seconds=5, max_instances= 2)
 
 scheduler.start()
 
