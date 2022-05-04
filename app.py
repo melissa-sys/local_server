@@ -112,11 +112,30 @@ def json_example():
         # print(last_json.get('accion'))
         # print(id_message)
         if (last_json['confirmacion'] == 'True'):
+            
             with open('datos.txt', 'w'):
                 pass
             text_file = open("datos.txt", "w")
             text_file.write(str(last_json))
             text_file.close()
+
+            if (last_json["accion"] == "iniciar"):
+                abrirterminal()
+                print('Se ejecuta todo lo respectivo a INICIAR')
+                escribirterminal("cd ros_ws")
+                escribirterminal(". baxter.sh")
+                escribirterminal("rosrun baxter_tools enable_robot.py -e")
+                time.sleep(10)
+            if (last_json["accion"] == "set"):
+                print('Se ejecuta todo lo respectivo a SET')
+                escribirterminal("rosrun baxter_tools tuck_arms.py -u")
+                borrar_registros()
+                time.sleep(5)
+            if(last_json["accion"] == "apagar"):
+                print('Se ejecuta todo lo respectivo a APAGAR')
+                escribirterminal("rosrun baxter_tools tuck_arms.py -t")
+                escribirterminal("exit")
+                escribirterminal("exit")
             if(last_json['accion'] == 'tomar'):
                 escribirterminal("python tomarfoto.py")
                 print("escribí 'python tomarfoto.py' en la terminal ")
@@ -126,73 +145,40 @@ def json_example():
             if(last_json['accion'] == "mover"):
                 escribirterminal("python pose.py")
                 print("escribí 'python pose.py' en la terminal ")
-            if(last_json['accion'] == "guardar"):
-                print("guardé los valores en txts")
-                os.rename("movimientosleft.txt", "Programas/" +
-                            str(datos['nombre_programa'])+"l.txt")
-                os.rename("movimientosright.txt", "Programas/" +
-                            str(datos['nombre_programa'])+"r.txt")
-            if(last_json['accion'] == "ejecutar"):  # pendiente
-                escribirterminal("python programas_guardadas.py")
-                print("escribí 'python programas_guardadas.py' en la terminal ")
-            if(last_json['accion'] == "posicionar"):
+            # if(last_json['accion'] == "guardar"):
+            #     print("guardé los valores en txts")
+            #     os.rename("movimientosleft.txt", "Programas/" +
+            #                 str(datos['nombre_programa'])+"l.txt")
+            #     os.rename("movimientosright.txt", "Programas/" +
+            #                 str(datos['nombre_programa'])+"r.txt")
+            # if(last_json['accion'] == "ejecutar"):  # pendiente
+            #     escribirterminal("python programas_guardadas.py")
+            #     print("escribí 'python programas_guardadas.py' en la terminal ")
+            if(last_json['accion'] == "posicionar"): #REVISAR
                 escribirterminal("python TCI.py")
                 print("escribí 'python TCI.py' en la terminal ")
                 time.sleep(3) 
-            if (last_json["accion"] == "iniciar"):
-                abrirterminal()
-                print('Se ejecuta todo lo respectivo a INICIAR')
-                escribirterminal("cd ros_ws")
-                escribirterminal(". baxter.sh")
-                escribirterminal("rosrun baxter_tools enable_robot.py -e")
-                time.sleep(10)
-                escribirterminal("python obtener_pos.py")
-            if (last_json["accion"] == "set"):
-                print('Se ejecuta todo lo respectivo a SET')
-                escribirterminal("rosrun baxter_tools tuck_arms.py -u")
                 borrar_registros()
+            if(last_json['accion'] == "ver"):  # PENDIENTE
+                escribirterminal("python obtener_pos.py")
                 time.sleep(5)
-                escribirterminal("python obtener_pos.py")
-            if(last_json["accion"] == "apagar"):
-                print('Se ejecuta todo lo respectivo a APAGAR')
-                escribirterminal("rosrun baxter_tools tuck_arms.py -t")
-                escribirterminal("exit")
-                escribirterminal("exit")
-                borrar_registros()
-            time.sleep(10)
-            datos = open("pos_actual.txt", "r")
-            time.sleep(5)
-            #escribirterminal('scp -i keypair.pem local_server/datos.txt ubuntu@ec2-3-93-220-15.compute-1.amazonaws.com:~/baxter-assistant1.0/ba_v1/chat/static')
-            #time.sleep(10)
-            #valores = eval(datos.read())
-            return (datos.read())
-
+                escribirterminal('scp -i keypair.pem local_server/datos.txt ubuntu@ec2-3-93-220-15.compute-1.amazonaws.com:~/baxter-assistant1.0/ba_v1/chat/static')
+                time.sleep(10)
+            if(last_json['accion'] == "ejecutar"):  # PENDIENTE
+                if (last_json['rutina'] == "hola_mundo"):
+                    escribirterminal("python hola_mundo.py")
+                elif (last_json['rutina'] == "pick_place"):
+                    escribirterminal("python pick_n_place.py")
         else:
             print('Existe un error!')
-            return (datos.read()) #Retornaba json con los valores de cada articulación del brazo        
-
     else:
         print("same number")
-        prueba = prueba
+        # prueba = prueba
         js_string = {'no new data'}
         print(js_string)
-        with app.test_request_context():
-            print(redirect(url_for('video_example')))
-            return redirect(url_for('video_example'))
+       
 
     return str(js_string)
-
-@app.route("/video", methods=['GET','POST'])
-def video_example():
-    print('iniciando video')
-    abrirterminal()
-    escribirterminal("cd ros_ws")
-    escribirterminal(". baxter.sh")
-    escribirterminal("rosrun baxter_tools enable_robot.py -e")
-    time.sleep(10)
-    escribirterminal("cd local_server")
-    escribirterminal("python baxter_camera.py")
-    return True
 
 @app.route("/video_kinesis", methods=['GET', 'POST'])
 def video():
